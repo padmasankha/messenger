@@ -5,7 +5,9 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.persistence.exceptions.i18n.DatabaseExceptionResource;
 import org.padmasankha.jaxrs.messenger.database.DataBaseClass;
+import org.padmasankha.jaxrs.messenger.exception.DataNotFoundException;
 import org.padmasankha.jaxrs.messenger.model.Message;
 
 public class MessageService {
@@ -44,7 +46,11 @@ public class MessageService {
 	}
 	
 	public Message getMessage(long id) {
-		return message.get(id);
+		Message msg = message.get(id);
+		if(msg == null){
+			throw new DataNotFoundException("Message with id " + id + " not found");
+		}
+		return msg;
 	}
 	
 	public Message addMessage(Message msg) {

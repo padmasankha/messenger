@@ -5,8 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
 import org.padmasankha.jaxrs.messenger.database.DataBaseClass;
 import org.padmasankha.jaxrs.messenger.model.Comment;
+import org.padmasankha.jaxrs.messenger.model.ErrorMessage;
 import org.padmasankha.jaxrs.messenger.model.Message;
 
 public class CommentService {
@@ -26,8 +31,24 @@ public class CommentService {
 	}
 	
 	public Comment getComment(long messageId, long commentId) {
-		Map<Long, Comment> cmt = message.get(messageId).getComments();		
-		return cmt.get(commentId);
+		
+		ErrorMessage errorMessage = new ErrorMessage("Not found", 404, "http://test.com/link");
+		Response response =Response.status(Status.NOT_FOUND)
+					   			   .entity(errorMessage)
+					               .build();
+		
+		Message msg = message.get(messageId);
+		if(msg == null){
+			throw new WebApplicationException(response);
+		}
+		
+		Map<Long, Comment> cmt = message.get(messageId).getComments();
+		
+		Comment comment = cmt.get(commentId);
+		if(comment == null){
+			throw new WebApplicationException(response);
+		}
+		return comment;
 	}
 	
 	public Comment addComment(long messageId, Comment comment) {
